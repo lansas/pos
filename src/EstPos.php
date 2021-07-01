@@ -192,6 +192,18 @@ class EstPos implements PosInterface
             'Mode' => 'P',
             'GroupId' => '',
             'TransId' => '',
+            /*
+                        'PbOrder' => array(
+                            'OrderType' => 0,
+                            'TotalNumberPayments' => 3,
+                            'OrderFrequencyCycle' => 'm',
+                            'OrderFrequencyInterval' => '1',
+
+
+                        ),
+            */
+
+
             'BillTo' => [
                 'Name' => $this->order->name ? $this->order->name : null,
             ],
@@ -224,6 +236,7 @@ class EstPos implements PosInterface
      */
     protected function create3DPaymentXML()
     {
+
         $requestData = [
             'Name' => $this->account->username,
             'Password' => $this->account->password,
@@ -247,6 +260,16 @@ class EstPos implements PosInterface
             'GroupId' => '',
             'TransId' => '',
         ];
+
+        //burda kaldık tekrarlayan
+        if ($this->order->nol_spy->b_tekrarlayan) {
+            $requestData["PbOrder"] = array(
+                "OrderType" => 0,
+                "TotalNumberPayments" => 3,
+                "OrderFrequencyCycle" => "M",
+                "OrderFrequencyInterval" => 1,
+            );
+        }
 
         if ($this->order->name) {
             $requestData['BillTo'] = [
@@ -320,10 +343,10 @@ class EstPos implements PosInterface
 
         $hashparams_arr = explode(':', $hash_params);
         foreach ($hashparams_arr as $value) {
-			if(!empty($value) && isset($data[$value])){
-				$params_val = $params_val . $data[$value];
-			}
-		}
+            if (!empty($value) && isset($data[$value])) {
+                $params_val = $params_val . $data[$value];
+            }
+        }
 
         $hash_val = $params_val . $this->account->store_key;
         $hash = base64_encode(sha1($hash_val, true));
@@ -585,6 +608,8 @@ class EstPos implements PosInterface
             'body' => $contents
         ]);
 
+        //return $this->XMLStringToObject($response->getBody()->getContents());
+
         $this->data = $this->XMLStringToObject($response->getBody()->getContents());
 
         return $this;
@@ -593,7 +618,7 @@ class EstPos implements PosInterface
     /**
      * Prepare Order
      *
-     * @param object                $order
+     * @param object $order
      * @param CreditCardEstPos|null $card
      *
      * @return mixed
@@ -618,7 +643,7 @@ class EstPos implements PosInterface
     /**
      * Make Payment
      *
-     * @param  CreditCardEstPos $card
+     * @param CreditCardEstPos $card
      *
      * @return mixed
      *
@@ -750,13 +775,21 @@ class EstPos implements PosInterface
             'Name' => $this->account->username,
             'Password' => $this->account->password,
             'ClientId' => $this->account->client_id,
-            'OrderId' => $meta['order_id'],
-            'Extra' => [
-                'ORDERSTATUS' => 'QUERY',
-            ],
         ];
+
+        $meta['RECURRINGID'] = $meta['RECURRINGID'] ?? null;
+        if ($meta['RECURRINGID'] !== null) {
+            $requestData['Extra']['RECURRINGID'] = $meta['RECURRINGID'];
+            $requestData['Extra']['ORDERSTATUS'] = 'QUERY';
+        } else {
+            $requestData['OrderId'] = $meta['order_id'];
+            $requestData['Extra']['ORDERSTATUS'] = 'QUERY';
+        }
+
+        //var_dump($requestData);exit;
         $xml = $this->createXML($requestData);
 
+        #return
         $this->send($xml);
 
         $status = 'declined';
@@ -776,6 +809,10 @@ class EstPos implements PosInterface
             'error_message' => isset($this->data->ErrMsg) ? $this->printData($this->data->ErrMsg) : null,
             'host_ref_num' => isset($this->data->Extra->HOST_REF_NUM) ? $this->printData($this->data->Extra->HOST_REF_NUM) : null,
             'order_status' => isset($this->data->Extra->ORDERSTATUS) ? $this->printData($this->data->Extra->ORDERSTATUS) : null,
+
+            's_req_xml' => $xml,
+
+
             'process_type' => isset($this->data->Extra->CHARGE_TYPE_CD) ? $this->printData($this->data->Extra->CHARGE_TYPE_CD) : null,
             'pan' => isset($this->data->Extra->PAN) ? $this->printData($this->data->Extra->PAN) : null,
             'num_code' => isset($this->data->Extra->NUMCODE) ? $this->printData($this->data->Extra->NUMCODE) : null,
@@ -809,6 +846,11 @@ class EstPos implements PosInterface
                 'ORDERHISTORY' => 'QUERY',
             ],
         ];
+
+        if ($meta['RECURRINGID'] !== null) {
+            $requestData  ['Extra']['RECURRINGID'] = $meta['RECURRINGID'];
+        }
+
         $xml = $this->createXML($requestData);
 
         $this->send($xml);
