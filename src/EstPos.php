@@ -261,7 +261,7 @@ class EstPos implements PosInterface
             'TransId' => '',
         ];
 
-        //burda kaldık tekrarlayan - gunes
+        //burda kaldık tekrarlayan - gunes erdemi
         if ($this->order->nol_spy->b_tekrarlayan) {
             $requestData["PbOrder"] = array(
                 "OrderType" => 0,
