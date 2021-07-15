@@ -265,7 +265,7 @@ class EstPos implements PosInterface
         if ($this->order->nol_spy->b_tekrarlayan) {
             $requestData["PbOrder"] = array(
                 "OrderType" => 0,
-                "TotalNumberPayments" => 3,
+                "TotalNumberPayments" => $this->order->nol_spy->i_tekrarlayan_count,
                 "OrderFrequencyCycle" => "M",
                 "OrderFrequencyInterval" => 1,
             );
