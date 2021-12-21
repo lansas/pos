@@ -615,6 +615,8 @@ class EstPos implements PosInterface
         return $this;
     }
 
+
+
     /**
      * Prepare Order
      *
@@ -760,6 +762,20 @@ class EstPos implements PosInterface
         ];
 
         return $this;
+    }
+
+    public function f_nol_cancel_order(array $meta)
+    {
+        $requestData = [
+            'Name' => $this->account->username,
+            'Password' => $this->account->password,
+            'ClientId' => $this->account->client_id,
+        ];
+        $requestData = array_merge($requestData, $meta);
+        $xml = $this->createXML($requestData);
+        $o_response = $this->send($xml);
+        //$o_response = null;
+        return array("o_response" => $o_response, "xml" => $xml);
     }
 
     /**
