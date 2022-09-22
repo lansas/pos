@@ -38,7 +38,9 @@ class AccountFactory
 
         return new EstPosAccount($bank, $model, $clientId, $kullaniciAdi, $password, $lang, $storeKey);
     }
-
+    public static function createEstPosAccount1(){
+        return true;
+    }
     /**
      * @param string      $bank
      * @param string      $merchantId
@@ -82,7 +84,10 @@ class AccountFactory
         return new GarantiPosAccount($bank, $model, $merchantId, $userId, $password, $lang, $terminalId, $storeKey, $refundUsername, $refundPassword);
     }
 
-
+public static function testttt(){
+        return "fffff";
+//
+    }
     /**
      * @param string      $bank
      * @param string      $merchantId    Mağaza Numarası

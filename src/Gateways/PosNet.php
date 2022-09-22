@@ -765,9 +765,11 @@ class PosNet extends AbstractGateway
      */
     protected function prepareStatusOrder(array $order)
     {
-        return (object) [
-            'id' => $order['id'],
-        ];
+        return
+            isset($order['RECURRINGID']) ?
+        (object)['RECURRINGID'=>$order['RECURRINGID']] : (object)['id' => $order['id']];
+        //zgzgzg
+
     }
 
     /**

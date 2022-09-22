@@ -2,6 +2,7 @@
 /**
  * @license MIT
  */
+
 namespace Mews\Pos\DataMapper;
 
 use Mews\Pos\Entity\Account\AbstractPosAccount;
@@ -21,31 +22,31 @@ class EstPosRequestDataMapper extends AbstractRequestDataMapper
      * @inheritdoc
      */
     protected $txTypeMappings = [
-        AbstractGateway::TX_PAY      => 'Auth',
-        AbstractGateway::TX_PRE_PAY  => 'PreAuth',
+        AbstractGateway::TX_PAY => 'Auth',
+        AbstractGateway::TX_PRE_PAY => 'PreAuth',
         AbstractGateway::TX_POST_PAY => 'PostAuth',
-        AbstractGateway::TX_CANCEL   => 'Void',
-        AbstractGateway::TX_REFUND   => 'Credit',
-        AbstractGateway::TX_STATUS   => 'ORDERSTATUS',
-        AbstractGateway::TX_HISTORY  => 'ORDERHISTORY',
+        AbstractGateway::TX_CANCEL => 'Void',
+        AbstractGateway::TX_REFUND => 'Credit',
+        AbstractGateway::TX_STATUS => 'ORDERSTATUS',
+        AbstractGateway::TX_HISTORY => 'ORDERHISTORY',
     ];
 
     protected $cardTypeMapping = [
-        AbstractCreditCard::CARD_TYPE_VISA       => '1',
+        AbstractCreditCard::CARD_TYPE_VISA => '1',
         AbstractCreditCard::CARD_TYPE_MASTERCARD => '2',
     ];
 
     protected $recurringOrderFrequencyMapping = [
-        'DAY'   => 'D',
-        'WEEK'  => 'W',
+        'DAY' => 'D',
+        'WEEK' => 'W',
         'MONTH' => 'M',
-        'YEAR'  => 'Y',
+        'YEAR' => 'Y',
     ];
 
     protected $secureTypeMappings = [
-        AbstractGateway::MODEL_3D_SECURE  => '3d',
-        AbstractGateway::MODEL_3D_PAY     => '3d_pay',
-        AbstractGateway::MODEL_3D_HOST    => '3d_host',
+        AbstractGateway::MODEL_3D_SECURE => '3d',
+        AbstractGateway::MODEL_3D_PAY => '3d_pay',
+        AbstractGateway::MODEL_3D_HOST => '3d_host',
         AbstractGateway::MODEL_NON_SECURE => 'regular',
     ];
 
@@ -55,20 +56,20 @@ class EstPosRequestDataMapper extends AbstractRequestDataMapper
     public function create3DPaymentRequestData(AbstractPosAccount $account, $order, string $txType, array $responseData): array
     {
         $requestData = $this->getRequestAccountData($account) + [
-            'Type'                    => $this->mapTxType($txType),
-            'IPAddress'               => $order->ip ?? null,
-            'Email'                   => $order->email,
-            'OrderId'                 => $order->id,
-            'UserId'                  => $order->user_id ?? null,
-            'Total'                   => $order->amount,
-            'Currency'                => $this->mapCurrency($order->currency),
-            'Taksit'                  => $this->mapInstallment($order->installment),
-            'Number'                  => $responseData['md'],
-            'PayerTxnId'              => $responseData['xid'],
-            'PayerSecurityLevel'      => $responseData['eci'],
-            'PayerAuthenticationCode' => $responseData['cavv'],
-            'Mode'                    => 'P',
-        ];
+                'Type' => $this->mapTxType($txType),
+                'IPAddress' => $order->ip ?? null,
+                'Email' => $order->email,
+                'OrderId' => $order->id,
+                'UserId' => $order->user_id ?? null,
+                'Total' => $order->amount,
+                'Currency' => $this->mapCurrency($order->currency),
+                'Taksit' => $this->mapInstallment($order->installment),
+                'Number' => $responseData['md'],
+                'PayerTxnId' => $responseData['xid'],
+                'PayerSecurityLevel' => $responseData['eci'],
+                'PayerAuthenticationCode' => $responseData['cavv'],
+                'Mode' => 'P',
+            ];
 
         if ($order->name) {
             $requestData['BillTo'] = [
@@ -78,16 +79,16 @@ class EstPosRequestDataMapper extends AbstractRequestDataMapper
 
         if (isset($order->recurringFrequency)) {
             $requestData['PbOrder'] = [
-                'OrderType'              => 0,
+                'OrderType' => 0,
                 // Periyodik İşlem Frekansı
                 'OrderFrequencyInterval' => $order->recurringFrequency,
                 //D|M|Y
-                'OrderFrequencyCycle'    => $this->mapRecurringFrequency($order->recurringFrequencyType),
-                'TotalNumberPayments'    => $order->recurringInstallmentCount,
+                'OrderFrequencyCycle' => $this->mapRecurringFrequency($order->recurringFrequencyType),
+                'TotalNumberPayments' => $order->recurringInstallmentCount,
             ];
         }
 
-        return  $requestData;
+        return $requestData;
     }
 
     /**
@@ -96,22 +97,22 @@ class EstPosRequestDataMapper extends AbstractRequestDataMapper
     public function createNonSecurePaymentRequestData(AbstractPosAccount $account, $order, string $txType, ?AbstractCreditCard $card = null): array
     {
         return $this->getRequestAccountData($account) + [
-            'Type'      => $this->mapTxType($txType),
-            'IPAddress' => $order->ip ?? null,
-            'Email'     => $order->email,
-            'OrderId'   => $order->id,
-            'UserId'    => $order->user_id ?? null,
-            'Total'     => $order->amount,
-            'Currency'  => $this->mapCurrency($order->currency),
-            'Taksit'    => $this->mapInstallment($order->installment),
-            'Number'    => $card->getNumber(),
-            'Expires'   => $card->getExpirationDate(self::CREDIT_CARD_EXP_DATE_FORMAT),
-            'Cvv2Val'   => $card->getCvv(),
-            'Mode'      => 'P',
-            'BillTo'    => [
-                'Name' => $order->name ?: null,
-            ],
-        ];
+                'Type' => $this->mapTxType($txType),
+                'IPAddress' => $order->ip ?? null,
+                'Email' => $order->email,
+                'OrderId' => $order->id,
+                'UserId' => $order->user_id ?? null,
+                'Total' => $order->amount,
+                'Currency' => $this->mapCurrency($order->currency),
+                'Taksit' => $this->mapInstallment($order->installment),
+                'Number' => $card->getNumber(),
+                'Expires' => $card->getExpirationDate(self::CREDIT_CARD_EXP_DATE_FORMAT),
+                'Cvv2Val' => $card->getCvv(),
+                'Mode' => 'P',
+                'BillTo' => [
+                    'Name' => $order->name ?: null,
+                ],
+            ];
     }
 
     /**
@@ -120,9 +121,9 @@ class EstPosRequestDataMapper extends AbstractRequestDataMapper
     public function createNonSecurePostAuthPaymentRequestData(AbstractPosAccount $account, $order, ?AbstractCreditCard $card = null): array
     {
         return $this->getRequestAccountData($account) + [
-            'Type'     => $this->mapTxType(AbstractGateway::TX_POST_PAY),
-            'OrderId'  => $order->id,
-        ];
+                'Type' => $this->mapTxType(AbstractGateway::TX_POST_PAY),
+                'OrderId' => $order->id,
+            ];
     }
 
     /**
@@ -130,12 +131,25 @@ class EstPosRequestDataMapper extends AbstractRequestDataMapper
      */
     public function createStatusRequestData(AbstractPosAccount $account, $order): array
     {
-        return $this->getRequestAccountData($account) + [
-            'OrderId'  => $order->id,
-            'Extra'    => [
-                $this->mapTxType(AbstractGateway::TX_STATUS) => 'QUERY',
-            ],
-        ];
+        //zgzgzg
+        return isset($order->RECURRINGID) ?
+            $this->getRequestAccountData($account) +
+
+            [
+
+                'Extra' => [
+                    $this->mapTxType(AbstractGateway::TX_STATUS) => 'QUERY',
+                    'RECURRINGID' => $order->RECURRINGID
+                ],
+            ]
+            :
+            $this->getRequestAccountData($account) +  [
+                'OrderId'  => $order->id,
+                'Extra' => [
+                    $this->mapTxType(AbstractGateway::TX_STATUS) => 'QUERY',
+                ],
+            ]
+        ;
     }
 
     /**
@@ -144,9 +158,9 @@ class EstPosRequestDataMapper extends AbstractRequestDataMapper
     public function createCancelRequestData(AbstractPosAccount $account, $order): array
     {
         return $this->getRequestAccountData($account) + [
-            'OrderId'  => $order->id,
-            'Type'     => $this->mapTxType(AbstractGateway::TX_CANCEL),
-        ];
+                'OrderId' => $order->id,
+                'Type' => $this->mapTxType(AbstractGateway::TX_CANCEL),
+            ];
     }
 
     /**
@@ -155,9 +169,9 @@ class EstPosRequestDataMapper extends AbstractRequestDataMapper
     public function createRefundRequestData(AbstractPosAccount $account, $order): array
     {
         $requestData = [
-            'OrderId'  => $order->id,
+            'OrderId' => $order->id,
             'Currency' => $this->mapCurrency($order->currency),
-            'Type'     => $this->mapTxType(AbstractGateway::TX_REFUND),
+            'Type' => $this->mapTxType(AbstractGateway::TX_REFUND),
         ];
 
         if (isset($order->amount)) {
@@ -173,8 +187,8 @@ class EstPosRequestDataMapper extends AbstractRequestDataMapper
     public function createHistoryRequestData(AbstractPosAccount $account, $order, array $extraData = []): array
     {
         $requestData = [
-            'OrderId'  => $extraData['order_id'], //todo orderId ya da id olarak degistirilecek, Payfor'da orderId, Garanti'de id
-            'Extra'    => [
+            'OrderId' => $extraData['order_id'], //todo orderId ya da id olarak degistirilecek, Payfor'da orderId, Garanti'de id
+            'Extra' => [
                 $this->mapTxType(AbstractGateway::TX_HISTORY) => 'QUERY',
             ],
         ];
@@ -191,19 +205,19 @@ class EstPosRequestDataMapper extends AbstractRequestDataMapper
         $hash = $this->create3DHash($account, $order, $txType);
 
         $inputs = [
-            'clientid'  => $account->getClientId(),
+            'clientid' => $account->getClientId(),
             'storetype' => $this->secureTypeMappings[$account->getModel()],
-            'hash'      => $hash,
-            'firmaadi'  => $order->name,
-            'Email'     => $order->email,
-            'amount'    => $order->amount,
-            'oid'       => $order->id,
-            'okUrl'     => $order->success_url,
-            'failUrl'   => $order->fail_url,
-            'rnd'       => $order->rand,
-            'lang'      => $this->getLang($account, $order),
-            'currency'  => $this->mapCurrency($order->currency),
-            'taksit'    => $this->mapInstallment($order->installment),
+            'hash' => $hash,
+            'firmaadi' => $order->name,
+            'Email' => $order->email,
+            'amount' => $order->amount,
+            'oid' => $order->id,
+            'okUrl' => $order->success_url,
+            'failUrl' => $order->fail_url,
+            'rnd' => $order->rand,
+            'lang' => $this->getLang($account, $order),
+            'currency' => $this->mapCurrency($order->currency),
+            'taksit' => $this->mapInstallment($order->installment),
             'islemtipi' => $this->mapTxType($txType),
         ];
 
@@ -217,7 +231,7 @@ class EstPosRequestDataMapper extends AbstractRequestDataMapper
 
         return [
             'gateway' => $gatewayURL,
-            'inputs'  => $inputs,
+            'inputs' => $inputs,
         ];
     }
 
@@ -259,7 +273,7 @@ class EstPosRequestDataMapper extends AbstractRequestDataMapper
     private function getRequestAccountData(AbstractPosAccount $account): array
     {
         return [
-            'Name'     => $account->getUsername(),
+            'Name' => $account->getUsername(),
             'Password' => $account->getPassword(),
             'ClientId' => $account->getClientId(),
         ];

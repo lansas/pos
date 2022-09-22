@@ -534,14 +534,14 @@ class EstPos extends AbstractGateway
         }
 
         $result = [
-            'order_id'         => $rawResponseData['OrderId'],
+            'order_id'         => isset($rawResponseData['OrderId']) ? $rawResponseData['OrderId'] : null,//zgzgzg
             'auth_code'        => null,
-            'response'         => $rawResponseData['Response'],
+            'response'         => isset($rawResponseData['Response']) ? $rawResponseData['Response'] : null,//zgzgzg
             'proc_return_code' => $procReturnCode,
-            'trans_id'         => $rawResponseData['TransId'],
+            'trans_id'         => isset($rawResponseData['TransId']) ? $rawResponseData['TransId'] : null,//zgzgzg
             'error_message'    => $rawResponseData['ErrMsg'],
             'host_ref_num'     => null,
-            'order_status'     => $rawResponseData['Extra']['ORDERSTATUS'],
+            'order_status'     => isset($rawResponseData['Extra']['ORDERSTATUS']) ? $rawResponseData['Extra']['ORDERSTATUS'] : null,//zgzgzg
             'process_type'     => null,
             'masked_number'    => null,
             'num_code'         => null,
@@ -674,7 +674,7 @@ class EstPos extends AbstractGateway
     protected function preparePostPaymentOrder(array $order)
     {
         return (object) [
-            'id' => $order['id'],
+            'id' => $order['id']
         ];
     }
 

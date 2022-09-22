@@ -552,6 +552,7 @@ class EstPosRequestDataMapperTest extends TestCase
             'OrderId'  => $order->id,
             'Extra'    => [
                 'ORDERSTATUS' => 'QUERY',
+               // 'RECURRINGID' => $order->RECURRINGID//zgzgzg
             ],
         ];
     }
