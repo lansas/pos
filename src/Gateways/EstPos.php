@@ -363,6 +363,9 @@ class EstPos extends AbstractGateway
      */
     protected function map3DPayResponseData($raw3DAuthResponseData)
     {
+
+
+
         $status = 'declined';
 
         $raw3DAuthResponseData = $this->emptyStringsToNull($raw3DAuthResponseData);
@@ -401,11 +404,11 @@ class EstPos extends AbstractGateway
         ];
 
         if ('1' === $raw3DAuthResponseData['mdStatus']) {
-            $response['id'] = $raw3DAuthResponseData['AuthCode'];
-            $response['auth_code'] = $raw3DAuthResponseData['AuthCode'];
-            $response['trans_id'] = $raw3DAuthResponseData['TransId'];
-            $response['host_ref_num'] = $raw3DAuthResponseData['HostRefNum'];
-            $response['response'] = $raw3DAuthResponseData['Response'];
+            $response['id'] = $raw3DAuthResponseData['AuthCode'] ?? null;
+            $response['auth_code'] = $raw3DAuthResponseData['AuthCode'] ?? null;
+            $response['trans_id'] = $raw3DAuthResponseData['TransId'] ?? null;
+            $response['host_ref_num'] = $raw3DAuthResponseData['HostRefNum'] ?? null;
+            $response['response'] = $raw3DAuthResponseData['Response'] ?? null;
             $response['code'] = $procReturnCode;
             $response['status_detail'] = $this->getStatusDetail($procReturnCode);
             $response['error_message'] = $raw3DAuthResponseData['ErrMsg'];
@@ -554,13 +557,13 @@ class EstPos extends AbstractGateway
             'all'              => $rawResponseData,
         ];
         if ('approved' === $status) {
-            $result['auth_code']      = $rawResponseData['Extra']['AUTH_CODE'];
-            $result['host_ref_num']   = $rawResponseData['Extra']['HOST_REF_NUM'];
-            $result['process_type']   = $rawResponseData['Extra']['CHARGE_TYPE_CD'];
-            $result['first_amount']   = $rawResponseData['Extra']['ORIG_TRANS_AMT'];
-            $result['capture_amount'] = $rawResponseData['Extra']['CAPTURE_AMT'];
-            $result['masked_number']  = $rawResponseData['Extra']['PAN'];
-            $result['num_code']       = $rawResponseData['Extra']['NUMCODE'];
+            $result['auth_code']      = $rawResponseData['Extra']['AUTH_CODE'] ?? null;//zgzgzg
+            $result['host_ref_num']   = $rawResponseData['Extra']['HOST_REF_NUM'] ?? null;//zgzgzg
+            $result['process_type']   = $rawResponseData['Extra']['CHARGE_TYPE_CD'] ?? null;//zgzgzg
+            $result['first_amount']   = $rawResponseData['Extra']['ORIG_TRANS_AMT'] ?? null;//zgzgzg
+            $result['capture_amount'] = $rawResponseData['Extra']['CAPTURE_AMT'] ?? null;//zgzgzg
+            $result['masked_number']  = $rawResponseData['Extra']['PAN'] ?? null;//zgzgzg
+            $result['num_code']       = $rawResponseData['Extra']['NUMCODE'] ?? null;//zgzgzg
             $result['capture']        = $result['first_amount'] === $result['capture_amount'];
         }
 
@@ -598,7 +601,7 @@ class EstPos extends AbstractGateway
             'code'             => $procReturnCode,
             'status'           => $status,
             'status_detail'    => $this->getStatusDetail($procReturnCode),
-            'error_code'       => $responseData['Extra']['ERRORCODE'],
+            'error_code'       => $responseData['Extra']['ERRORCODE'] ?? null,
             'error_message'    => $responseData['ErrMsg'],
             'campaign_url'     => null,
             'extra'            => $responseData['Extra'],

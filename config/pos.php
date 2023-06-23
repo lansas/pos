@@ -168,5 +168,17 @@ return [
                 ],
             ],
         ],
+        'cardplus' => [
+            'name' => 'Cardplus Albank',
+            'class' => Mews\Pos\Gateways\EstPos::class,
+            'urls' => [
+                'production' => 'https://sanalpos.card-plus.net/fim/api',
+                'test' => 'https://entegrasyon.asseco-see.com.tr/fim/api',
+                'gateway' => [
+                    'production' => 'https://sanalpos.card-plus.net/fim/est3Dgate',
+                    'test' => 'https://entegrasyon.asseco-see.com.tr/fim/est3Dgate',
+                ],
+            ]
+        ]
     ],
 ];
