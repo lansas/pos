@@ -2,6 +2,7 @@
 /**
  * @license MIT
  */
+
 namespace Mews\Pos\Gateways;
 
 use Mews\Pos\Client\HttpClient;
@@ -62,12 +63,13 @@ class EstPos extends AbstractGateway
      * @param EstPosRequestDataMapper $requestDataMapper
      */
     public function __construct(
-        array $config,
-        AbstractPosAccount $account,
+        array                     $config,
+        AbstractPosAccount        $account,
         AbstractRequestDataMapper $requestDataMapper,
-        HttpClient $client,
-        LoggerInterface $logger
-    ) {
+        HttpClient                $client,
+        LoggerInterface           $logger
+    )
+    {
         parent::__construct($config, $account, $requestDataMapper, $client, $logger);
     }
 
@@ -96,11 +98,11 @@ class EstPos extends AbstractGateway
         $hashParamsArr = explode(':', $hashParams);
         foreach ($hashParamsArr as $value) {
             if (!empty($value) && isset($data[$value])) {
-                $paramsVal = $paramsVal.$data[$value];
+                $paramsVal = $paramsVal . $data[$value];
             }
         }
 
-        $hashVal = $paramsVal.$this->account->getStoreKey();
+        $hashVal = $paramsVal . $this->account->getStoreKey();
         $hash = $this->hashString($hashVal);
 
         //todo simplify this if check
@@ -142,7 +144,7 @@ class EstPos extends AbstractGateway
             }
         }
 
-        $this->response = (object) $this->map3DPaymentData($request->all(), $provisionResponse);
+        $this->response = (object)$this->map3DPaymentData($request->all(), $provisionResponse);
         $this->logger->log(LogLevel::DEBUG, 'finished 3D payment', ['mapped_response' => $this->response]);
 
         return $this;
@@ -153,7 +155,7 @@ class EstPos extends AbstractGateway
      */
     public function make3DPayPayment(Request $request)
     {
-        $this->response = (object) $this->map3DPayResponseData($request->request->all());
+        $this->response = (object)$this->map3DPayResponseData($request->request->all());
 
         return $this;
     }
@@ -163,7 +165,7 @@ class EstPos extends AbstractGateway
      */
     public function make3DHostPayment(Request $request)
     {
-        $this->response = (object) $this->map3DHostResponseData($request->request->all());
+        $this->response = (object)$this->map3DHostResponseData($request->request->all());
 
         return $this;
     }
@@ -313,7 +315,7 @@ class EstPos extends AbstractGateway
      */
     protected function getStatusDetail(?string $procReturnCode): ?string
     {
-        return $procReturnCode ? (isset($this->codes[$procReturnCode]) ? (string) $this->codes[$procReturnCode] : null) : null;
+        return $procReturnCode ? (isset($this->codes[$procReturnCode]) ? (string)$this->codes[$procReturnCode] : null) : null;
     }
 
     /**
@@ -330,24 +332,24 @@ class EstPos extends AbstractGateway
 
         $threeDResponse = [
             'transaction_security' => $this->mapResponseTransactionSecurity($raw3DAuthResponseData['mdStatus']),
-            'md_status'            => $raw3DAuthResponseData['mdStatus'],
-            'hash'                 => $raw3DAuthResponseData['HASH'],
-            'order_id'             => $raw3DAuthResponseData['oid'],
-            'rand'                 => $raw3DAuthResponseData['rnd'],
-            'hash_params'          => $raw3DAuthResponseData['HASHPARAMS'],
-            'hash_params_val'      => $raw3DAuthResponseData['HASHPARAMSVAL'],
-            'masked_number'        => $raw3DAuthResponseData['maskedCreditCard'],
-            'month'                => $raw3DAuthResponseData['Ecom_Payment_Card_ExpDate_Month'],
-            'year'                 => $raw3DAuthResponseData['Ecom_Payment_Card_ExpDate_Year'],
-            'amount'               => $raw3DAuthResponseData['amount'],
-            'currency'             => array_search($raw3DAuthResponseData['currency'], $this->requestDataMapper->getCurrencyMappings()),
-            'eci'                  => null,
-            'tx_status'            => null,
-            'cavv'                 => null,
-            'xid'                  => $raw3DAuthResponseData['oid'],
-            'md_error_message'     => '1' !== $raw3DAuthResponseData['mdStatus'] ? $raw3DAuthResponseData['mdErrorMsg'] : null,
-            'name'                 => $raw3DAuthResponseData['firmaadi'],
-            '3d_all'               => $raw3DAuthResponseData,
+            'md_status' => $raw3DAuthResponseData['mdStatus'],
+            'hash' => $raw3DAuthResponseData['HASH'],
+            'order_id' => $raw3DAuthResponseData['oid'],
+            'rand' => $raw3DAuthResponseData['rnd'],
+            'hash_params' => $raw3DAuthResponseData['HASHPARAMS'],
+            'hash_params_val' => $raw3DAuthResponseData['HASHPARAMSVAL'],
+            'masked_number' => $raw3DAuthResponseData['maskedCreditCard'],
+            'month' => $raw3DAuthResponseData['Ecom_Payment_Card_ExpDate_Month'],
+            'year' => $raw3DAuthResponseData['Ecom_Payment_Card_ExpDate_Year'],
+            'amount' => $raw3DAuthResponseData['amount'],
+            'currency' => array_search($raw3DAuthResponseData['currency'], $this->requestDataMapper->getCurrencyMappings()),
+            'eci' => null,
+            'tx_status' => null,
+            'cavv' => null,
+            'xid' => $raw3DAuthResponseData['oid'],
+            'md_error_message' => '1' !== $raw3DAuthResponseData['mdStatus'] ? $raw3DAuthResponseData['mdErrorMsg'] : null,
+            'name' => $raw3DAuthResponseData['firmaadi'],
+            '3d_all' => $raw3DAuthResponseData,
         ];
 
         if ('1' === $raw3DAuthResponseData['mdStatus']) {
@@ -365,7 +367,6 @@ class EstPos extends AbstractGateway
     {
 
 
-
         $status = 'declined';
 
         $raw3DAuthResponseData = $this->emptyStringsToNull($raw3DAuthResponseData);
@@ -379,28 +380,28 @@ class EstPos extends AbstractGateway
         $defaultResponse = $this->getDefaultPaymentResponse();
 
         $response = [
-            'order_id'             => $raw3DAuthResponseData['oid'],
+            'order_id' => $raw3DAuthResponseData['oid'],
             'transaction_security' => $this->mapResponseTransactionSecurity($raw3DAuthResponseData['mdStatus']),
-            'md_status'            => $raw3DAuthResponseData['mdStatus'],
-            'status'               => $status,
-            'hash'                 => $raw3DAuthResponseData['HASH'],
-            'rand'                 => $raw3DAuthResponseData['rnd'],
-            'hash_params'          => $raw3DAuthResponseData['HASHPARAMS'],
-            'hash_params_val'      => $raw3DAuthResponseData['HASHPARAMSVAL'],
-            'masked_number'        => $raw3DAuthResponseData['maskedCreditCard'],
-            'month'                => $raw3DAuthResponseData['Ecom_Payment_Card_ExpDate_Month'],
-            'year'                 => $raw3DAuthResponseData['Ecom_Payment_Card_ExpDate_Year'],
-            'amount'               => $raw3DAuthResponseData['amount'],
-            'currency'             => array_search($raw3DAuthResponseData['currency'], $this->requestDataMapper->getCurrencyMappings()),
-            'tx_status'            => null,
-            'eci'                  => $raw3DAuthResponseData['eci'],
-            'cavv'                 => $raw3DAuthResponseData['cavv'],
-            'xid'                  => $raw3DAuthResponseData['oid'],
-            'md_error_message'     => $raw3DAuthResponseData['mdErrorMsg'],
-            'name'                 => $raw3DAuthResponseData['firmaadi'],
-            'email'                => $raw3DAuthResponseData['Email'],
-            'campaign_url'         => null,
-            'all'                  => $raw3DAuthResponseData,
+            'md_status' => $raw3DAuthResponseData['mdStatus'],
+            'status' => $status,
+            'hash' => $raw3DAuthResponseData['HASH'],
+            'rand' => $raw3DAuthResponseData['rnd'],
+            'hash_params' => $raw3DAuthResponseData['HASHPARAMS'],
+            'hash_params_val' => $raw3DAuthResponseData['HASHPARAMSVAL'],
+            'masked_number' => $raw3DAuthResponseData['maskedCreditCard'],
+            'month' => $raw3DAuthResponseData['Ecom_Payment_Card_ExpDate_Month'],
+            'year' => $raw3DAuthResponseData['Ecom_Payment_Card_ExpDate_Year'],
+            'amount' => $raw3DAuthResponseData['amount'],
+            'currency' => array_search($raw3DAuthResponseData['currency'], $this->requestDataMapper->getCurrencyMappings()),
+            'tx_status' => null,
+            'eci' => $raw3DAuthResponseData['eci'],
+            'cavv' => $raw3DAuthResponseData['cavv'],
+            'xid' => $raw3DAuthResponseData['oid'],
+            'md_error_message' => $raw3DAuthResponseData['mdErrorMsg'],
+            'name' => $raw3DAuthResponseData['firmaadi'],
+            'email' => $raw3DAuthResponseData['Email'],
+            'campaign_url' => null,
+            'all' => $raw3DAuthResponseData,
         ];
 
         if ('1' === $raw3DAuthResponseData['mdStatus']) {
@@ -437,28 +438,28 @@ class EstPos extends AbstractGateway
         $defaultResponse = $this->getDefaultPaymentResponse();
 
         $response = [
-            'order_id'             => $raw3DAuthResponseData['oid'],
+            'order_id' => $raw3DAuthResponseData['oid'],
             'transaction_security' => $this->mapResponseTransactionSecurity($raw3DAuthResponseData['mdStatus']),
-            'md_status'            => $raw3DAuthResponseData['mdStatus'],
-            'status'               => $status,
-            'hash'                 => $raw3DAuthResponseData['HASH'],
-            'rand'                 => $raw3DAuthResponseData['rnd'],
-            'hash_params'          => $raw3DAuthResponseData['HASHPARAMS'],
-            'hash_params_val'      => $raw3DAuthResponseData['HASHPARAMSVAL'],
-            'masked_number'        => $raw3DAuthResponseData['maskedCreditCard'],
-            'month'                => $raw3DAuthResponseData['Ecom_Payment_Card_ExpDate_Month'],
-            'year'                 => $raw3DAuthResponseData['Ecom_Payment_Card_ExpDate_Year'],
-            'amount'               => $raw3DAuthResponseData['amount'],
-            'currency'             => array_search($raw3DAuthResponseData['currency'], $this->requestDataMapper->getCurrencyMappings()),
-            'tx_status'            => null,
-            'eci'                  => $raw3DAuthResponseData['eci'],
-            'cavv'                 => $raw3DAuthResponseData['cavv'],
-            'xid'                  => $raw3DAuthResponseData['oid'],
-            'md_error_message'     => 'approved' !== $status ? $raw3DAuthResponseData['mdErrorMsg'] : null,
-            'name'                 => $raw3DAuthResponseData['firmaadi'],
-            'email'                => $raw3DAuthResponseData['Email'],
-            'campaign_url'         => null,
-            'all'                  => $raw3DAuthResponseData,
+            'md_status' => $raw3DAuthResponseData['mdStatus'],
+            'status' => $status,
+            'hash' => $raw3DAuthResponseData['HASH'],
+            'rand' => $raw3DAuthResponseData['rnd'],
+            'hash_params' => $raw3DAuthResponseData['HASHPARAMS'],
+            'hash_params_val' => $raw3DAuthResponseData['HASHPARAMSVAL'],
+            'masked_number' => $raw3DAuthResponseData['maskedCreditCard'],
+            'month' => $raw3DAuthResponseData['Ecom_Payment_Card_ExpDate_Month'],
+            'year' => $raw3DAuthResponseData['Ecom_Payment_Card_ExpDate_Year'],
+            'amount' => $raw3DAuthResponseData['amount'],
+            'currency' => array_search($raw3DAuthResponseData['currency'], $this->requestDataMapper->getCurrencyMappings()),
+            'tx_status' => null,
+            'eci' => $raw3DAuthResponseData['eci'],
+            'cavv' => $raw3DAuthResponseData['cavv'],
+            'xid' => $raw3DAuthResponseData['oid'],
+            'md_error_message' => 'approved' !== $status ? $raw3DAuthResponseData['mdErrorMsg'] : null,
+            'name' => $raw3DAuthResponseData['firmaadi'],
+            'email' => $raw3DAuthResponseData['Email'],
+            'campaign_url' => null,
+            'all' => $raw3DAuthResponseData,
         ];
 
         return $this->mergeArraysPreferNonNullValues($defaultResponse, $response);
@@ -476,20 +477,20 @@ class EstPos extends AbstractGateway
             $status = 'approved';
         }
 
-        return (object) [
-            'order_id'         => $rawResponseData['OrderId'],
-            'group_id'         => $rawResponseData['GroupId'],
-            'response'         => $rawResponseData['Response'],
-            'auth_code'        => $rawResponseData['AuthCode'],
-            'host_ref_num'     => $rawResponseData['HostRefNum'],
+        return (object)[
+            'order_id' => $rawResponseData['OrderId'],
+            'group_id' => $rawResponseData['GroupId'],
+            'response' => $rawResponseData['Response'],
+            'auth_code' => $rawResponseData['AuthCode'],
+            'host_ref_num' => $rawResponseData['HostRefNum'],
             'proc_return_code' => $procReturnCode,
-            'trans_id'         => $rawResponseData['TransId'],
-            'num_code'         => $rawResponseData['Extra']['NUMCODE'],
-            'error_code'       => $rawResponseData['Extra']['ERRORCODE'],
-            'error_message'    => $rawResponseData['ErrMsg'],
-            'status'           => $status,
-            'status_detail'    => $this->getStatusDetail($procReturnCode),
-            'all'              => $rawResponseData,
+            'trans_id' => $rawResponseData['TransId'],
+            'num_code' => $rawResponseData['Extra']['NUMCODE'],
+            'error_code' => $rawResponseData['Extra']['ERRORCODE'],
+            'error_message' => $rawResponseData['ErrMsg'],
+            'status' => $status,
+            'status_detail' => $this->getStatusDetail($procReturnCode),
+            'all' => $rawResponseData,
         ];
     }
 
@@ -506,22 +507,22 @@ class EstPos extends AbstractGateway
         }
 
         $result = [
-            'order_id'         => $rawResponseData['OrderId'],
-            'group_id'         => $rawResponseData['GroupId'],
-            'response'         => $rawResponseData['Response'],
-            'auth_code'        => $rawResponseData['AuthCode'],
-            'host_ref_num'     => $rawResponseData['HostRefNum'],
+            'order_id' => $rawResponseData['OrderId'],
+            'group_id' => $rawResponseData['GroupId'],
+            'response' => $rawResponseData['Response'],
+            'auth_code' => $rawResponseData['AuthCode'],
+            'host_ref_num' => $rawResponseData['HostRefNum'],
             'proc_return_code' => $procReturnCode,
-            'trans_id'         => $rawResponseData['TransId'],
-            'error_code'       => $rawResponseData['Extra']['ERRORCODE'],
-            'num_code'         => $rawResponseData['Extra']['NUMCODE'],
-            'error_message'    => $rawResponseData['ErrMsg'],
-            'status'           => $status,
-            'status_detail'    => $this->getStatusDetail($procReturnCode),
-            'all'              => $rawResponseData,
+            'trans_id' => $rawResponseData['TransId'],
+            'error_code' => $rawResponseData['Extra']['ERRORCODE'],
+            'num_code' => $rawResponseData['Extra']['NUMCODE'],
+            'error_message' => $rawResponseData['ErrMsg'],
+            'status' => $status,
+            'status_detail' => $this->getStatusDetail($procReturnCode),
+            'all' => $rawResponseData,
         ];
 
-        return (object) $result;
+        return (object)$result;
     }
 
     /**
@@ -537,37 +538,37 @@ class EstPos extends AbstractGateway
         }
 
         $result = [
-            'order_id'         => isset($rawResponseData['OrderId']) ? $rawResponseData['OrderId'] : null,//zgzgzg
-            'auth_code'        => null,
-            'response'         => isset($rawResponseData['Response']) ? $rawResponseData['Response'] : null,//zgzgzg
+            'order_id' => isset($rawResponseData['OrderId']) ? $rawResponseData['OrderId'] : null,//zgzgzg
+            'auth_code' => null,
+            'response' => isset($rawResponseData['Response']) ? $rawResponseData['Response'] : null,//zgzgzg
             'proc_return_code' => $procReturnCode,
-            'trans_id'         => isset($rawResponseData['TransId']) ? $rawResponseData['TransId'] : null,//zgzgzg
-            'error_message'    => $rawResponseData['ErrMsg'],
-            'host_ref_num'     => null,
-            'order_status'     => isset($rawResponseData['Extra']['ORDERSTATUS']) ? $rawResponseData['Extra']['ORDERSTATUS'] : null,//zgzgzg
-            'process_type'     => null,
-            'masked_number'    => null,
-            'num_code'         => null,
-            'first_amount'     => null,
-            'capture_amount'   => null,
-            'status'           => $status,
-            'error_code'       => null,
-            'status_detail'    => $this->getStatusDetail($procReturnCode),
-            'capture'          => false,
-            'all'              => $rawResponseData,
+            'trans_id' => isset($rawResponseData['TransId']) ? $rawResponseData['TransId'] : null,//zgzgzg
+            'error_message' => $rawResponseData['ErrMsg'],
+            'host_ref_num' => null,
+            'order_status' => isset($rawResponseData['Extra']['ORDERSTATUS']) ? $rawResponseData['Extra']['ORDERSTATUS'] : null,//zgzgzg
+            'process_type' => null,
+            'masked_number' => null,
+            'num_code' => null,
+            'first_amount' => null,
+            'capture_amount' => null,
+            'status' => $status,
+            'error_code' => null,
+            'status_detail' => $this->getStatusDetail($procReturnCode),
+            'capture' => false,
+            'all' => $rawResponseData,
         ];
         if ('approved' === $status) {
-            $result['auth_code']      = $rawResponseData['Extra']['AUTH_CODE'] ?? null;//zgzgzg
-            $result['host_ref_num']   = $rawResponseData['Extra']['HOST_REF_NUM'] ?? null;//zgzgzg
-            $result['process_type']   = $rawResponseData['Extra']['CHARGE_TYPE_CD'] ?? null;//zgzgzg
-            $result['first_amount']   = $rawResponseData['Extra']['ORIG_TRANS_AMT'] ?? null;//zgzgzg
-            $result['capture_amount'] = $rawResponseData['Extra']['CAPTURE_AMT'] ?? null;//zgzgzg
-            $result['masked_number']  = $rawResponseData['Extra']['PAN'] ?? null;//zgzgzg
-            $result['num_code']       = $rawResponseData['Extra']['NUMCODE'] ?? null;//zgzgzg
-            $result['capture']        = $result['first_amount'] === $result['capture_amount'];
+            $result['auth_code'] = isset($rawResponseData['Extra']['AUTH_CODE']) ? $rawResponseData['Extra']['AUTH_CODE'] : null;//zgzgzg
+            $result['host_ref_num'] = isset($rawResponseData['Extra']['HOST_REF_NUM']) ? $rawResponseData['Extra']['HOST_REF_NUM'] : null;//zgzgzg
+            $result['process_type'] = isset($rawResponseData['Extra']['CHARGE_TYPE_CD']) ? $rawResponseData['Extra']['CHARGE_TYPE_CD'] : null;//zgzgzg
+            $result['first_amount'] = isset($rawResponseData['Extra']['ORIG_TRANS_AMT']) ? $rawResponseData['Extra']['ORIG_TRANS_AMT'] : null;//zgzgzg
+            $result['capture_amount'] = isset($rawResponseData['Extra']['CAPTURE_AMT']) ? $rawResponseData['Extra']['CAPTURE_AMT'] : null;//zgzgzg
+            $result['masked_number'] = isset($rawResponseData['Extra']['PAN']) ? $rawResponseData['Extra']['PAN'] : null;//zgzgzg
+            $result['num_code'] = isset($rawResponseData['Extra']['NUMCODE']) ? $rawResponseData['Extra']['NUMCODE'] : null;//zgzgzg
+            $result['capture'] = $result['first_amount'] === $result['capture_amount'];
         }
 
-        return (object) $result;
+        return (object)$result;
     }
 
     /**
@@ -588,24 +589,24 @@ class EstPos extends AbstractGateway
         }
 
         $mappedResponse = [
-            'id'               => $responseData['AuthCode'],
-            'order_id'         => $responseData['OrderId'],
-            'group_id'         => $responseData['GroupId'],
-            'trans_id'         => $responseData['TransId'],
-            'response'         => $responseData['Response'],
+            'id' => $responseData['AuthCode'],
+            'order_id' => $responseData['OrderId'],
+            'group_id' => $responseData['GroupId'],
+            'trans_id' => $responseData['TransId'],
+            'response' => $responseData['Response'],
             'transaction_type' => $this->type,
-            'transaction'      => empty($this->type) ? null : $this->requestDataMapper->mapTxType($this->type),
-            'auth_code'        => $responseData['AuthCode'],
-            'host_ref_num'     => $responseData['HostRefNum'],
+            'transaction' => empty($this->type) ? null : $this->requestDataMapper->mapTxType($this->type),
+            'auth_code' => $responseData['AuthCode'],
+            'host_ref_num' => $responseData['HostRefNum'],
             'proc_return_code' => $procReturnCode,
-            'code'             => $procReturnCode,
-            'status'           => $status,
-            'status_detail'    => $this->getStatusDetail($procReturnCode),
-            'error_code'       => $responseData['Extra']['ERRORCODE'] ?? null,
-            'error_message'    => $responseData['ErrMsg'],
-            'campaign_url'     => null,
-            'extra'            => $responseData['Extra'],
-            'all'              => $responseData,
+            'code' => $procReturnCode,
+            'status' => $status,
+            'status_detail' => $this->getStatusDetail($procReturnCode),
+            'error_code' => $responseData['Extra']['ERRORCODE'] ?? null,
+            'error_message' => $responseData['ErrMsg'],
+            'campaign_url' => null,
+            'extra' => $responseData['Extra'],
+            'all' => $responseData,
         ];
 
         $this->logger->log(LogLevel::DEBUG, 'mapped payment response', $mappedResponse);
@@ -625,16 +626,16 @@ class EstPos extends AbstractGateway
             $status = 'approved';
         }
 
-        return (object) [
-            'order_id'         => $rawResponseData['OrderId'],
-            'response'         => $rawResponseData['Response'],
+        return (object)[
+            'order_id' => $rawResponseData['OrderId'],
+            'response' => $rawResponseData['Response'],
             'proc_return_code' => $procReturnCode,
-            'error_message'    => $rawResponseData['ErrMsg'],
-            'num_code'         => $rawResponseData['Extra']['NUMCODE'],
-            'trans_count'      => $rawResponseData['Extra']['TRXCOUNT'],
-            'status'           => $status,
-            'status_detail'    => $this->getStatusDetail($procReturnCode),
-            'all'              => $rawResponseData,
+            'error_message' => $rawResponseData['ErrMsg'],
+            'num_code' => $rawResponseData['Extra']['NUMCODE'],
+            'trans_count' => $rawResponseData['Extra']['TRXCOUNT'],
+            'status' => $status,
+            'status_detail' => $this->getStatusDetail($procReturnCode),
+            'all' => $rawResponseData,
         ];
     }
 
@@ -665,9 +666,9 @@ class EstPos extends AbstractGateway
         }
 
         // Order
-        return (object) array_merge($order, [
+        return (object)array_merge($order, [
             'installment' => $order['installment'] ?? 0,
-            'currency'    => $order['currency'] ?? 'TRY',
+            'currency' => $order['currency'] ?? 'TRY',
         ]);
     }
 
@@ -676,7 +677,7 @@ class EstPos extends AbstractGateway
      */
     protected function preparePostPaymentOrder(array $order)
     {
-        return (object) [
+        return (object)[
             'id' => $order['id']
         ];
     }
@@ -686,7 +687,7 @@ class EstPos extends AbstractGateway
      */
     protected function prepareStatusOrder(array $order)
     {
-        return (object) $order;
+        return (object)$order;
     }
 
     /**
@@ -694,7 +695,7 @@ class EstPos extends AbstractGateway
      */
     protected function prepareHistoryOrder(array $order)
     {
-        return (object) $order;
+        return (object)$order;
     }
 
     /**
@@ -702,7 +703,7 @@ class EstPos extends AbstractGateway
      */
     protected function prepareCancelOrder(array $order)
     {
-        return (object) $order;
+        return (object)$order;
     }
 
     /**
@@ -710,10 +711,10 @@ class EstPos extends AbstractGateway
      */
     protected function prepareRefundOrder(array $order)
     {
-        return (object) [
-            'id'       => $order['id'],
+        return (object)[
+            'id' => $order['id'],
             'currency' => $order['currency'] ?? 'TRY',
-            'amount'   => $order['amount'],
+            'amount' => $order['amount'],
         ];
     }
 }
